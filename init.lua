@@ -1,7 +1,4 @@
-
 require("ts3init")            -- Required for ts3RegisterModule
-
---require ("cat/events")		--Somethings wrong with this
 
 --Facts from: www.factretriever.com/cat-facts
 
@@ -109,20 +106,29 @@ facts ={
 		
 }
 
+--get length of a table. table.getn doesn't work
+function tablelength(T)
+  local count = 0
+  for _ in pairs(T) do count = count + 1 end
+  return count
+end
 
-factLen = 99 
+factLen = tablelength(facts)
 
-
+--sends a random cat fact in the current channel
 function sendCatFact()
 	ts3.requestSendChannelTextMsg(ts3.getCurrentServerConnectionHandlerID(),facts[math.random(1,factLen)],1)
 end
 
+--sends a random picture of a cat in the current channel
 function sendCatPic()
 	ts3.requestSendChannelTextMsg(ts3.getCurrentServerConnectionHandlerID(),"[url=".. getCatPicURL() .. "]Click here for a cute cat[/url]",1)
 end
 
+--callback event for onTextMessageEvent
 local function onTextMessageEvent(serverConnectionHandlerID, targetMode, toID, fromID, fromName, fromUniqueIdentifier, message, ffIgnored)
   
+	--targetMode is 1 if the message is send directly to you
     if targetMode == 1 then
 
 	  if message == "!cat" then
@@ -140,16 +146,16 @@ local function onTextMessageEvent(serverConnectionHandlerID, targetMode, toID, f
 	  end
  
     end
-  
+	
+	-- Return 0: Client will handle the text message as usual. Return 1: Client will ignore the test message.
 	return 0
 end
 
-
+--get the URL of a picture of a random cat
 function getCatPicURL()
 
-	
 	--[[
-	local http = require "socket.http" -- ???
+	local http = require "socket.http" 
 	
 	result, statuscode, content = http.request("http://random.cat/meow") 
 	
@@ -168,17 +174,14 @@ function getCatPicURL()
 	--end
 	
 	--]]
+	
 	--Teamspeak just dont give a fuck about you and your socket module. So heres the easy way.
 	return "http://random.cat/"
-	
-	
 
 end
 
-
 local registeredEvents = {
 	onTextMessageEvent = onTextMessageEvent
-
 }
 
 --Register your callback functions with a unique module name.
