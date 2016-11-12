@@ -115,6 +115,8 @@ end
 
 factLen = tablelength(facts)
 
+help = "\nType !cat for a random cat fact\nType !help to see this again\nType !catpic for a cat picture\nSource of the [url=http://www.factretriever.com/cat-facts]facts[/url]"
+
 --sends a random cat fact in the current channel
 function sendCatFact()
 	ts3.requestSendChannelTextMsg(ts3.getCurrentServerConnectionHandlerID(),facts[math.random(1,factLen)],1)
@@ -127,28 +129,50 @@ end
 
 --callback event for onTextMessageEvent
 local function onTextMessageEvent(serverConnectionHandlerID, targetMode, toID, fromID, fromName, fromUniqueIdentifier, message, ffIgnored)
-  
-	--targetMode is 1 if the message is send directly to you
-    if targetMode == 1 then
-
-	  if message == "!cat" then
+	
+	--targetMode 1: direct message targetMode 2: channel message 
+	if message == "!cat" then
 	  
-		ts3.requestSendPrivateTextMsg (serverConnectionHandlerID,facts[math.random(1,factLen)],fromID)
-		 
-	  elseif message == "!help" then
+		if targetMode == 1 then
+		
+			ts3.requestSendPrivateTextMsg(serverConnectionHandlerID,facts[math.random(1,factLen)],fromID)
+			
+		elseif targetMode == 2 then
+		
+			ts3.requestSendChannelTextMsg(serverConnectionHandlerID,facts[math.random(1,factLen)],1)
+			
+		end
+		
+	elseif message == "!help" then
 	  
-		ts3.requestSendPrivateTextMsg (serverConnectionHandlerID,"\nType !cat for a random cat fact\nType !help to see this again\nType !catpic for a cad video\nSource of the [url=http://www.factretriever.com/cat-facts]facts[/url]",fromID)
+		if targetMode == 1 then
 		
-	  elseif message == "!catpic" then
+			ts3.requestSendPrivateTextMsg(serverConnectionHandlerID,help,fromID)
+			
+		elseif targetMode == 2 then
 		
-		ts3.requestSendPrivateTextMsg (serverConnectionHandlerID,"[url=".. getCatPicURL() .. "]Click here for a cute cat[/url]",fromID)
+			ts3.requestSendChannelTextMsg(serverConnectionHandlerID,help,1)
+			
+		end
 		
-	  end
- 
-    end
+	elseif message == "!catpic" then
+	  
+		if targetMode == 1 then
+		
+			ts3.requestSendPrivateTextMsg(serverConnectionHandlerID,"[url=".. getCatPicURL() .. "]Click here for a cute cat[/url]",fromID)
+			
+		elseif targetMode == 2 then
+			
+			ts3.requestSendChannelTextMsg(serverConnectionHandlerID,"[url=".. getCatPicURL() .. "]Click here for a cute cat[/url]",1)
+			
+		end
+		
+	  
+		
+	end
 	
 	-- Return 0: Client will handle the text message as usual. Return 1: Client will ignore the test message.
-	return 0
+	return 0	
 end
 
 --get the URL of a picture of a random cat
