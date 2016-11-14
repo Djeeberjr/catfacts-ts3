@@ -1,5 +1,5 @@
 require("ts3init")            -- Required for ts3RegisterModule
-
+require("ts3defs")
 --Facts from: www.factretriever.com/cat-facts
 
 facts ={
@@ -117,13 +117,28 @@ factLen = tablelength(facts)
 
 help = "\nType !cat for a random cat fact\nType !help to see this again\nType !catpic for a cat picture\nSource of the [url=http://www.factretriever.com/cat-facts]facts[/url]"
 
+MenuItemID = 0
+
+local function createMenus(moduleMenuItemID)
+	
+	MenuItemID = moduleMenuItemID
+	
+	return {
+	{ts3defs.PluginMenuType.PLUGIN_MENU_TYPE_GLOBAL,  1,  "Send cat fact",  "cat/cat1.png"},
+	{ts3defs.PluginMenuType.PLUGIN_MENU_TYPE_GLOBAL,  2,  "Send cat pic",  "cat/cat2.jpg"}
+}
+	
+end
+
+
+
 --sends a random cat fact in the current channel
-function sendCatFact()
+local function sendCatFact()
 	ts3.requestSendChannelTextMsg(ts3.getCurrentServerConnectionHandlerID(),facts[math.random(1,factLen)],1)
 end
 
 --sends a random picture of a cat in the current channel
-function sendCatPic()
+local function sendCatPic()
 	ts3.requestSendChannelTextMsg(ts3.getCurrentServerConnectionHandlerID(),"[url=".. getCatPicURL() .. "]Click here for a cute cat[/url]",1)
 end
 
@@ -175,6 +190,16 @@ local function onTextMessageEvent(serverConnectionHandlerID, targetMode, toID, f
 	return 0	
 end
 
+local function onMenuItemEvent(serverConnectionHandlerID, menuType, menuItemID, selectedItemID)
+	
+	if menuItemID == 1 then
+		sendCatFact()
+	elseif menuItemID == 2 then
+		sendCatPic()
+	end
+	
+end	
+
 --get the URL of a picture of a random cat
 function getCatPicURL()
 
@@ -205,7 +230,9 @@ function getCatPicURL()
 end
 
 local registeredEvents = {
-	onTextMessageEvent = onTextMessageEvent
+	onTextMessageEvent = onTextMessageEvent,
+	createMenus = createMenus,
+	onMenuItemEvent = onMenuItemEvent
 }
 
 --Register your callback functions with a unique module name.
